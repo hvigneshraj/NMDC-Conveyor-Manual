@@ -3713,3 +3713,159 @@ footer small {
     height: 1px;
   }
 }
+
+/* ================================
+   NMDC + MUGIZH BRANDING
+================================ */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  flex-shrink: 0;
+  min-width: 360px;
+}
+
+.brand-nmdc {
+  width: 62px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.brand-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, .16);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+.brand-mugizh {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.brand-copy strong {
+  color: #edf2f3;
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+
+.brand-copy small {
+  color: #68777e;
+  font-size: 8px;
+  letter-spacing: .13em;
+}
+
+/* ================================
+   EVIDENCE MATRIX
+================================ */
+
+.matrix-wrap {
+  overflow-x: auto;
+}
+
+.matrix-wrap table {
+  width: 100%;
+}
+
+.matrix-wrap th small {
+  display: block;
+  margin-top: 5px;
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  color: #68777e;
+}
+
+.evidence-bar {
+  font-family: monospace;
+  font-weight: 900;
+  letter-spacing: -2px;
+  white-space: nowrap;
+}
+
+.evidence-bar.direct {
+  color: #9be24b;
+}
+
+.evidence-bar.supporting {
+  color: #5d8b45;
+}
+
+.evidence-bar.none {
+  color: #3b484d;
+  letter-spacing: 0;
+}
+
+.primary-cell {
+  background: rgba(51, 153, 51, .055);
+}
+
+.support-cell {
+  background: rgba(51, 153, 51, .025);
+}
+
+.none-cell {
+  opacity: .65;
+}
+
+.matrix-legend {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  flex-wrap: wrap;
+}
+
+.legend-title {
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: #6f8088;
+  font-weight: 800;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  letter-spacing: .08em;
+  color: #89979d;
+}
+
+@media(max-width:620px) {
+  .brand-copy {
+    display: none;
+  }
+
+  .brand-nmdc {
+    width: 52px;
+  }
+
+  .brand-mugizh {
+    width: 36px;
+    height: 36px;
+  }
+
+  .matrix-legend {
+    gap: 14px;
+  }
+}

@@ -314,8 +314,7 @@ const sensors = [
     name: "MFL / DMI",
     question: "Is there hidden internal steel-cord damage?",
     key: "Internal steel-cord inspection",
-    alternative:
-      "Vision sees the surface, not hidden steel-cord damage.",
+    alternative: "Vision sees the surface, not hidden steel-cord damage.",
   },
   {
     code: "02",
@@ -338,8 +337,7 @@ const sensors = [
     name: "LWIR",
     question: "Where are abnormal thermal patterns?",
     key: "Spatial thermal awareness",
-    alternative:
-      "Point sensors only measure one local location.",
+    alternative: "Point sensors only measure one local location.",
   },
   {
     code: "05",
@@ -397,94 +395,965 @@ function App() {
   return (
     <div className="app">
       <style>{`
+        .brand {
+          display:flex;
+          align-items:center;
+          gap:14px;
+          min-width:290px;
+          color:inherit;
+          text-decoration:none;
+        }
+
+        .brand-nmdc {
+          width:58px;
+          height:58px;
+          object-fit:contain;
+          display:block;
+        }
+
+        .brand-mugizh {
+          width:42px;
+          height:42px;
+          object-fit:contain;
+          display:block;
+          border-radius:8px;
+        }
+
+        .brand-divider {
+          width:1px;
+          height:34px;
+          background:rgba(255,255,255,.16);
+          display:block;
+        }
+
+        .brand-copy {
+          display:flex;
+          flex-direction:column;
+          gap:5px;
+        }
+
+        .brand-copy strong {
+          font-size:12px;
+          letter-spacing:.14em;
+          color:#eef3f4;
+        }
+
+        .brand-copy small {
+          font-size:8px;
+          letter-spacing:.13em;
+          color:#718087;
+        }
+
         .damage-visual { position: relative; overflow: hidden; }
-        .damage-visual .visual-tag { position: absolute; left: 16px; bottom: 14px; z-index: 4; font-size: 9px; letter-spacing: .14em; color: rgba(255,255,255,.68); }
-        .splice-visual { background: radial-gradient(circle at 50% 48%, rgba(51,153,51,.16), transparent 48%), linear-gradient(135deg,#071118,#0d1820); }
-        .splice-belt { position:absolute; top:50%; width:45%; height:46px; transform:translateY(-50%) skewY(-4deg); background:repeating-linear-gradient(90deg,#202c33 0 18px,#111a20 18px 36px); border:1px solid rgba(255,255,255,.22); }
+        .damage-visual .visual-tag {
+          position:absolute;
+          left:16px;
+          bottom:14px;
+          z-index:4;
+          font-size:9px;
+          letter-spacing:.14em;
+          color:rgba(255,255,255,.68);
+        }
+
+        .splice-visual {
+          background:radial-gradient(circle at 50% 48%,rgba(51,153,51,.16),transparent 48%),linear-gradient(135deg,#071118,#0d1820);
+        }
+
+        .splice-belt {
+          position:absolute;
+          top:50%;
+          width:45%;
+          height:46px;
+          transform:translateY(-50%) skewY(-4deg);
+          background:repeating-linear-gradient(90deg,#202c33 0 18px,#111a20 18px 36px);
+          border:1px solid rgba(255,255,255,.22);
+        }
+
         .splice-belt-left { left:3%; }
         .splice-belt-right { right:3%; }
-        .splice-joint { position:absolute; left:43%; top:31%; width:14%; height:38%; background:linear-gradient(90deg,rgba(51,153,51,.2),rgba(51,153,51,.8),rgba(51,153,51,.2)); border:1px solid rgba(51,153,51,.8); box-shadow:0 0 22px rgba(51,153,51,.35); transform:skewY(-4deg); z-index:2; }
-        .splice-bolt { position:absolute; width:7px; height:7px; border-radius:50%; background:#aeb9bd; box-shadow:0 0 8px rgba(255,255,255,.35); z-index:3; }
-        .bolt-one { left:46%; top:38%; } .bolt-two { left:51%; top:48%; } .bolt-three { left:46%; top:58%; }
-        .splice-scan-line { position:absolute; left:0; right:0; top:18%; height:1px; background:linear-gradient(90deg,transparent,#339933,transparent); box-shadow:0 0 12px rgba(51,153,51,.8); animation:spliceScan 3s linear infinite; }
-        .rupture-visual { background:radial-gradient(circle at 50% 50%,rgba(190,45,45,.2),transparent 42%),linear-gradient(135deg,#10090b,#17151a); }
-        .rupture-belt { position:absolute; top:50%; height:52px; transform:translateY(-50%) skewY(-5deg); background:repeating-linear-gradient(90deg,#202a30 0 20px,#10171c 20px 40px); border-top:1px solid rgba(255,255,255,.24); border-bottom:1px solid rgba(255,255,255,.16); }
-        .rupture-left { left:-2%; width:46%; clip-path:polygon(0 0,100% 0,88% 25%,100% 50%,84% 72%,94% 100%,0 100%); }
-        .rupture-right { right:-2%; width:46%; clip-path:polygon(6% 0,100% 0,100% 100%,4% 100%,16% 74%,3% 50%,18% 26%); }
-        .rupture-gap { position:absolute; left:45%; top:22%; width:10%; height:56%; background:#030609; transform:skewY(-5deg); box-shadow:0 0 28px rgba(0,0,0,.8); }
-        .rupture-crack { position:absolute; left:48%; top:29%; width:3px; height:43%; background:linear-gradient(#d94b4b,#5d1717); transform:rotate(17deg); box-shadow:0 0 12px rgba(217,75,75,.65); z-index:3; }
-        .rupture-scan-line { position:absolute; left:0; right:0; bottom:20%; height:1px; background:linear-gradient(90deg,transparent,#d94b4b,transparent); box-shadow:0 0 12px rgba(217,75,75,.75); }
-        .rupture-tag { color:rgba(255,150,150,.78)!important; }
-        .research-hero-grid { display:grid; grid-template-columns:1.55fr .75fr; gap:18px; margin-bottom:22px; }
-        .research-progress-card,.research-decision-card { border:1px solid rgba(255,255,255,.09); background:linear-gradient(145deg,rgba(13,25,33,.96),rgba(7,15,21,.96)); padding:28px; position:relative; overflow:hidden; }
-        .research-progress-card:after { content:"RESEARCH → DESIGN"; position:absolute; right:-28px; bottom:18px; transform:rotate(-90deg); font-size:9px; letter-spacing:.2em; color:rgba(255,255,255,.08); }
-        .research-card-topline { display:flex; justify-content:space-between; color:#7f9098; font-size:10px; letter-spacing:.15em; }
-        .research-card-topline b { color:#339933; font-size:16px; }
-        .research-progress-card h3 { font-size:clamp(24px,3vw,42px); line-height:.95; margin:24px 0 14px; max-width:680px; }
-        .research-progress-card p { color:#9baab1; max-width:720px; line-height:1.7; }
-        .research-scan-sequence { margin-top:25px; display:grid; gap:10px; }
-        .research-scan-step { display:grid; grid-template-columns:45px 1fr; align-items:center; gap:12px; }
-        .research-scan-step>span { color:#339933; font-size:11px; }
-        .research-scan-step div { display:grid; grid-template-columns:90px 1fr; gap:14px; align-items:center; }
-        .research-scan-step b { font-size:10px; letter-spacing:.13em; color:#dbe3e7; }
-        .research-scan-step i { display:block; height:4px; background:linear-gradient(90deg,#339933,#000fa0); box-shadow:0 0 12px rgba(51,153,51,.18); }
-        .research-decision-card>span { font-size:10px; letter-spacing:.16em; color:#7f9098; }
-        .decision-row { display:grid; grid-template-columns:42px 1fr; gap:14px; align-items:start; margin-top:28px; }
-        .decision-row>b { color:#339933; font-size:12px; }
-        .decision-row strong { display:block; font-size:15px; letter-spacing:.08em; }
-        .decision-row p { margin:5px 0 0; color:#7f9098; font-size:12px; line-height:1.5; }
-        .decision-line { height:1px; background:rgba(255,255,255,.08); margin:18px 0 0 42px; }
-        .research-link { display:inline-flex; align-items:center; justify-content:space-between; gap:18px; margin-top:22px; width:100%; padding-top:15px; border-top:1px solid rgba(255,255,255,.1); color:#dce6ea; text-decoration:none; font-size:10px; letter-spacing:.14em; font-weight:800; transition:.2s ease; }
-        .research-link span { color:#339933; font-size:16px; transition:.2s ease; }
-        .research-link:hover { color:#fff; border-color:rgba(51,153,51,.55); }
-        .research-link:hover span { transform:translate(4px,-4px); }
-        .research-card { display:flex; flex-direction:column; }
-        .research-card .research-link { margin-top:auto; }
-        @keyframes spliceScan { 0%{top:18%} 50%{top:78%} 100%{top:18%} }
-        @media(max-width:850px){ .research-hero-grid{grid-template-columns:1fr}.research-scan-step div{grid-template-columns:75px 1fr}.research-progress-card,.research-decision-card{padding:22px} }
+
+        .splice-joint {
+          position:absolute;
+          left:43%;
+          top:31%;
+          width:14%;
+          height:38%;
+          background:linear-gradient(90deg,rgba(51,153,51,.2),rgba(51,153,51,.8),rgba(51,153,51,.2));
+          border:1px solid rgba(51,153,51,.8);
+          box-shadow:0 0 22px rgba(51,153,51,.35);
+          transform:skewY(-4deg);
+          z-index:2;
+        }
+
+        .splice-bolt {
+          position:absolute;
+          width:7px;
+          height:7px;
+          border-radius:50%;
+          background:#aeb9bd;
+          box-shadow:0 0 8px rgba(255,255,255,.35);
+          z-index:3;
+        }
+
+        .bolt-one { left:46%; top:38%; }
+        .bolt-two { left:51%; top:48%; }
+        .bolt-three { left:46%; top:58%; }
+
+        .splice-scan-line {
+          position:absolute;
+          left:0;
+          right:0;
+          top:18%;
+          height:1px;
+          background:linear-gradient(90deg,transparent,#339933,transparent);
+          box-shadow:0 0 12px rgba(51,153,51,.8);
+          animation:spliceScan 3s linear infinite;
+        }
+
+        .rupture-visual {
+          background:radial-gradient(circle at 50% 50%,rgba(190,45,45,.2),transparent 42%),linear-gradient(135deg,#10090b,#17151a);
+        }
+
+        .rupture-belt {
+          position:absolute;
+          top:50%;
+          height:52px;
+          transform:translateY(-50%) skewY(-5deg);
+          background:repeating-linear-gradient(90deg,#202a30 0 20px,#10171c 20px 40px);
+          border-top:1px solid rgba(255,255,255,.24);
+          border-bottom:1px solid rgba(255,255,255,.16);
+        }
+
+        .rupture-left {
+          left:-2%;
+          width:46%;
+          clip-path:polygon(0 0,100% 0,88% 25%,100% 50%,84% 72%,94% 100%,0 100%);
+        }
+
+        .rupture-right {
+          right:-2%;
+          width:46%;
+          clip-path:polygon(6% 0,100% 0,100% 100%,4% 100%,16% 74%,3% 50%,18% 26%);
+        }
+
+        .rupture-gap {
+          position:absolute;
+          left:45%;
+          top:22%;
+          width:10%;
+          height:56%;
+          background:#030609;
+          transform:skewY(-5deg);
+          box-shadow:0 0 28px rgba(0,0,0,.8);
+        }
+
+        .rupture-crack {
+          position:absolute;
+          left:48%;
+          top:29%;
+          width:3px;
+          height:43%;
+          background:linear-gradient(#d94b4b,#5d1717);
+          transform:rotate(17deg);
+          box-shadow:0 0 12px rgba(217,75,75,.65);
+          z-index:3;
+        }
+
+        .rupture-scan-line {
+          position:absolute;
+          left:0;
+          right:0;
+          bottom:20%;
+          height:1px;
+          background:linear-gradient(90deg,transparent,#d94b4b,transparent);
+          box-shadow:0 0 12px rgba(217,75,75,.75);
+        }
+
+        .rupture-tag {
+          color:rgba(255,150,150,.78)!important;
+        }
+
+        .research-hero-grid {
+          display:grid;
+          grid-template-columns:1.55fr .75fr;
+          gap:18px;
+          margin-bottom:22px;
+        }
+
+        .research-progress-card,
+        .research-decision-card {
+          border:1px solid rgba(255,255,255,.09);
+          background:linear-gradient(145deg,rgba(13,25,33,.96),rgba(7,15,21,.96));
+          padding:28px;
+          position:relative;
+          overflow:hidden;
+        }
+
+        .research-progress-card:after {
+          content:"RESEARCH → DESIGN";
+          position:absolute;
+          right:-28px;
+          bottom:18px;
+          transform:rotate(-90deg);
+          font-size:9px;
+          letter-spacing:.2em;
+          color:rgba(255,255,255,.08);
+        }
+
+        .research-card-topline {
+          display:flex;
+          justify-content:space-between;
+          color:#7f9098;
+          font-size:10px;
+          letter-spacing:.15em;
+        }
+
+        .research-card-topline b {
+          color:#339933;
+          font-size:16px;
+        }
+
+        .research-progress-card h3 {
+          font-size:clamp(24px,3vw,42px);
+          line-height:.95;
+          margin:24px 0 14px;
+          max-width:680px;
+        }
+
+        .research-progress-card p {
+          color:#9baab1;
+          max-width:720px;
+          line-height:1.7;
+        }
+
+        .research-scan-sequence {
+          margin-top:25px;
+          display:grid;
+          gap:10px;
+        }
+
+        .research-scan-step {
+          display:grid;
+          grid-template-columns:45px 1fr;
+          align-items:center;
+          gap:12px;
+        }
+
+        .research-scan-step>span {
+          color:#339933;
+          font-size:11px;
+        }
+
+        .research-scan-step div {
+          display:grid;
+          grid-template-columns:90px 1fr;
+          gap:14px;
+          align-items:center;
+        }
+
+        .research-scan-step b {
+          font-size:10px;
+          letter-spacing:.13em;
+          color:#dbe3e7;
+        }
+
+        .research-scan-step i {
+          display:block;
+          height:4px;
+          background:linear-gradient(90deg,#339933,#000fa0);
+          box-shadow:0 0 12px rgba(51,153,51,.18);
+        }
+
+        .research-decision-card>span {
+          font-size:10px;
+          letter-spacing:.16em;
+          color:#7f9098;
+        }
+
+        .decision-row {
+          display:grid;
+          grid-template-columns:42px 1fr;
+          gap:14px;
+          align-items:start;
+          margin-top:28px;
+        }
+
+        .decision-row>b {
+          color:#339933;
+          font-size:12px;
+        }
+
+        .decision-row strong {
+          display:block;
+          font-size:15px;
+          letter-spacing:.08em;
+        }
+
+        .decision-row p {
+          margin:5px 0 0;
+          color:#7f9098;
+          font-size:12px;
+          line-height:1.5;
+        }
+
+        .decision-line {
+          height:1px;
+          background:rgba(255,255,255,.08);
+          margin:18px 0 0 42px;
+        }
+
+        /* LOCKED RESEARCH REDIRECT STYLE */
+        .research-link {
+          display:inline-flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:18px;
+          margin-top:22px;
+          width:100%;
+          padding-top:15px;
+          border-top:1px solid rgba(255,255,255,.1);
+          color:#dce6ea;
+          text-decoration:none;
+          font-size:10px;
+          letter-spacing:.14em;
+          font-weight:800;
+          transition:.2s ease;
+        }
+
+        .research-link span {
+          color:#339933;
+          font-size:16px;
+          transition:.2s ease;
+        }
+
+        .research-link:hover {
+          color:#fff;
+          border-color:rgba(51,153,51,.55);
+        }
+
+        .research-link:hover span {
+          transform:translate(4px,-4px);
+        }
+
+        .research-card {
+          display:flex;
+          flex-direction:column;
+        }
+
+        .research-card .research-link {
+          margin-top:auto;
+        }
+
+        /* ENGINEERING EVIDENCE */
+        .engineering-evidence {
+          margin:22px 0;
+          padding:18px 20px;
+          border:1px solid rgba(51,153,51,.28);
+          background:linear-gradient(135deg,rgba(51,153,51,.07),rgba(4,12,17,.5));
+          position:relative;
+        }
+
+        .engineering-evidence:before {
+          content:"";
+          position:absolute;
+          left:0;
+          top:0;
+          bottom:0;
+          width:2px;
+          background:#339933;
+        }
+
+        .engineering-evidence label {
+          color:#9be24b;
+          font-size:9px;
+          letter-spacing:.17em;
+        }
+
+        .engineering-evidence h4 {
+          margin:9px 0 7px;
+          font-size:14px;
+          letter-spacing:.04em;
+          color:#edf3f4;
+        }
+
+        .engineering-evidence p {
+          color:#84939a;
+          font-size:11px;
+          line-height:1.65;
+          margin:0;
+        }
+
+        .engineering-evidence a {
+          display:inline-block;
+          margin-top:12px;
+          color:#dfe7e9;
+          font-size:9px;
+          letter-spacing:.12em;
+          text-decoration:none;
+          border-bottom:1px solid rgba(51,153,51,.45);
+          padding-bottom:3px;
+        }
+
+        .engineering-evidence a:hover {
+          color:#9be24b;
+        }
+
+        /* EVIDENCE MATRIX */
+        .matrix-wrap {
+          border:1px solid rgba(255,255,255,.1);
+          background:linear-gradient(145deg,rgba(9,19,25,.96),rgba(4,10,14,.98));
+          overflow:hidden;
+        }
+
+        .matrix-wrap table {
+          width:100%;
+          border-collapse:collapse;
+          table-layout:fixed;
+        }
+
+        .matrix-wrap th {
+          height:76px;
+          padding:10px 8px;
+          border-bottom:1px solid rgba(255,255,255,.1);
+          border-right:1px solid rgba(255,255,255,.06);
+          color:#7f9098;
+          font-size:9px;
+          letter-spacing:.12em;
+          font-weight:800;
+          vertical-align:middle;
+        }
+
+        .matrix-wrap th:first-child {
+          width:220px;
+          text-align:left;
+          padding-left:22px;
+          color:#cbd4d7;
+        }
+
+        .matrix-sensor-code {
+          display:block;
+          color:#9be24b;
+          font-size:10px;
+          margin-bottom:6px;
+        }
+
+        .matrix-sensor-name {
+          display:block;
+          color:#718087;
+          font-size:8px;
+          line-height:1.35;
+          letter-spacing:.08em;
+        }
+
+        .matrix-wrap td {
+          height:58px;
+          border-bottom:1px solid rgba(255,255,255,.055);
+          border-right:1px solid rgba(255,255,255,.05);
+          text-align:center;
+          color:#3d494e;
+          font-size:15px;
+        }
+
+        .matrix-wrap td:first-child {
+          text-align:left;
+          padding-left:22px;
+          color:#cbd3d6;
+          font-size:11px;
+          letter-spacing:.02em;
+        }
+
+        .matrix-wrap tr:hover td {
+          background:rgba(255,255,255,.018);
+        }
+
+        .matrix-wrap tr:last-child td {
+          border-bottom:0;
+        }
+
+        .matrix-wrap th:last-child,
+        .matrix-wrap td:last-child {
+          border-right:0;
+        }
+
+        .primary-cell {
+          background:rgba(51,153,51,.055);
+        }
+
+        .support-cell {
+          background:rgba(255,255,255,.018);
+        }
+
+        .evidence-bar {
+          display:inline-block;
+          font-size:13px;
+          letter-spacing:-.09em;
+          line-height:1;
+        }
+
+        .evidence-bar.direct {
+          color:#9be24b;
+          text-shadow:0 0 12px rgba(155,226,75,.35);
+        }
+
+        .evidence-bar.supporting {
+          color:#a9b4b8;
+        }
+
+        .evidence-bar.none {
+          color:#39454a;
+          font-size:18px;
+        }
+
+        .matrix-legend {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:18px;
+          padding:17px 22px;
+          border-top:1px solid rgba(255,255,255,.08);
+          background:rgba(255,255,255,.015);
+        }
+
+        .matrix-legend-title {
+          color:#6d7c82;
+          font-size:8px;
+          letter-spacing:.16em;
+        }
+
+        .matrix-legend-items {
+          display:flex;
+          gap:22px;
+          flex-wrap:wrap;
+        }
+
+        .matrix-legend-item {
+          display:flex;
+          align-items:center;
+          gap:8px;
+          color:#8d9aa0;
+          font-size:9px;
+          letter-spacing:.08em;
+        }
+
+        .matrix-legend-item b {
+          font-size:12px;
+          letter-spacing:-.1em;
+        }
+
+        .matrix-legend-item.direct b {
+          color:#9be24b;
+        }
+
+        .matrix-legend-item.support b {
+          color:#a9b4b8;
+        }
+
+        .matrix-legend-item.none b {
+          color:#39454a;
+          font-size:17px;
+        }
+
+        @keyframes spliceScan {
+          0% { top:18%; }
+          50% { top:78%; }
+          100% { top:18%; }
+        }
+
+        @media(max-width:850px) {
+          .research-hero-grid {
+            grid-template-columns:1fr;
+          }
+
+          .research-scan-step div {
+            grid-template-columns:75px 1fr;
+          }
+
+          .research-progress-card,
+          .research-decision-card {
+            padding:22px;
+          }
+
+          .matrix-wrap {
+            overflow-x:auto;
+          }
+
+          .matrix-wrap table {
+            min-width:850px;
+          }
+        }
+
+        @media(max-width:620px) {
+          .brand {
+            min-width:0;
+            gap:8px;
+          }
+
+          .brand-nmdc {
+            width:42px;
+            height:42px;
+          }
+
+          .brand-mugizh {
+            width:32px;
+            height:32px;
+          }
+
+          .brand-copy strong {
+            font-size:9px;
+          }
+
+          .brand-copy small {
+            font-size:6px;
+          }
+        }
       `}</style>
+
       <style>{`
-        .field-heading{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:end;margin-bottom:48px}
-        .field-principle{border-left:2px solid #339933;padding:4px 0 4px 22px;margin-bottom:6px}
-        .field-principle span,.field-bottom-strip span{display:block;font-size:9px;letter-spacing:.18em;color:#6f8088;margin-bottom:10px}
-        .field-principle strong{display:block;font-size:14px;letter-spacing:.08em;color:#edf2f3}
-        .field-principle p{font-size:11px;line-height:1.6;color:#7e8d94;margin:9px 0 0}
-        .field-rail{position:relative;display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid rgba(255,255,255,.11);border-bottom:1px solid rgba(255,255,255,.08)}
-        .field-rail-line{position:absolute;left:8%;right:8%;top:42px;height:1px;background:linear-gradient(90deg,#339933,rgba(51,153,51,.18));box-shadow:0 0 15px rgba(51,153,51,.18)}
-        .field-node{position:relative;min-height:285px;padding:25px 24px 28px;border-right:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(12,23,29,.34),rgba(5,12,16,.08));transition:.25s ease}
-        .field-node:last-child{border-right:0}
-        .field-node:hover{background:linear-gradient(180deg,rgba(51,153,51,.08),rgba(5,12,16,.02));transform:translateY(-4px)}
-        .field-node-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
-        .field-node-top span{font-size:11px;color:#9be24b;font-weight:800;letter-spacing:.08em}
-        .field-node-top i{width:9px;height:9px;border-radius:50%;background:#27322e;border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 5px rgba(51,153,51,.02)}
-        .field-node:first-of-type .field-node-top i{background:#339933;box-shadow:0 0 16px rgba(51,153,51,.55)}
-        .field-node small{display:block;margin-top:58px;color:#68777e;font-size:8px;letter-spacing:.16em}
-        .field-node h3{font-size:22px;letter-spacing:-.02em;margin:12px 0 9px;color:#eef2f2}
-        .field-node p{font-size:11px;line-height:1.65;color:#829198;max-width:170px}
-        .field-bottom-strip{display:grid;grid-template-columns:1fr 30px 1fr 30px 1fr;align-items:center;margin-top:20px;padding:18px 22px;border:1px solid rgba(255,255,255,.08);background:rgba(7,15,20,.55)}
-        .field-bottom-strip b{font-size:11px;letter-spacing:.08em;color:#dbe2e4}
-        .field-bottom-strip>i{height:1px;background:rgba(51,153,51,.45);position:relative}
-        .field-bottom-strip>i:after{content:'›';position:absolute;right:-2px;top:-10px;color:#339933;font-size:18px}
-        .readiness{display:grid!important;grid-template-columns:310px 1fr;gap:64px;align-items:center}
-        .readiness-intro>span{font-size:10px;letter-spacing:.17em;color:#9be24b}
-        .readiness-intro h2{font-size:clamp(54px,6vw,96px);line-height:.82;letter-spacing:-.065em;margin:28px 0 26px;color:#f1f4f4}
-        .readiness-intro p{font-size:12px;line-height:1.7;color:#819097;max-width:285px}
-        .readiness-stamp{display:flex;align-items:center;gap:12px;margin-top:28px;padding-top:17px;border-top:1px solid rgba(255,255,255,.08)}
-        .readiness-stamp b{font-size:11px;letter-spacing:.13em;color:#fff}.readiness-stamp span{font-size:8px;letter-spacing:.13em;color:#68777e}
-        .readiness-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-        .readiness-card{min-height:205px;padding:24px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(145deg,rgba(12,23,29,.78),rgba(5,12,16,.72));position:relative;overflow:hidden;transition:.25s ease}
-        .readiness-card:hover{border-color:rgba(51,153,51,.45);transform:translateY(-3px)}
-        .readiness-card-number{font-size:11px;color:#9be24b;font-weight:800}.readiness-card-tag{position:absolute;right:20px;top:24px;font-size:8px;letter-spacing:.15em;color:#5f7077}
-        .readiness-card h3{font-size:16px;letter-spacing:.03em;margin:48px 0 10px;color:#e9eeee}.readiness-card p{font-size:11px;line-height:1.65;color:#7e8d94;max-width:260px}
-        .readiness-card-line{position:absolute;left:24px;right:24px;bottom:22px;height:2px;background:rgba(255,255,255,.06);overflow:hidden}.readiness-card-line i{display:block;width:38%;height:100%;background:#339933;box-shadow:0 0 12px rgba(51,153,51,.5)}
-        @media(max-width:950px){.field-heading{grid-template-columns:1fr}.field-rail{grid-template-columns:repeat(3,1fr)}.field-rail-line{display:none}.field-node:nth-child(3){border-right:0}.field-bottom-strip{grid-template-columns:1fr;gap:14px}.field-bottom-strip>i{display:none}.readiness{grid-template-columns:1fr!important}.readiness-grid{grid-template-columns:1fr 1fr}}
-        @media(max-width:620px){.field-rail{grid-template-columns:1fr}.field-node{border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}.readiness-grid{grid-template-columns:1fr}.readiness-intro h2{font-size:58px}}
+        .field-heading {
+          display:grid;
+          grid-template-columns:minmax(0,1fr) 300px;
+          gap:34px;
+          align-items:end;
+          margin-bottom:48px;
+        }
+
+        .field-principle {
+          border-left:2px solid #339933;
+          padding:4px 0 4px 22px;
+          margin-bottom:6px;
+        }
+
+        .field-principle span,
+        .field-bottom-strip span {
+          display:block;
+          font-size:9px;
+          letter-spacing:.18em;
+          color:#6f8088;
+          margin-bottom:10px;
+        }
+
+        .field-principle strong {
+          display:block;
+          font-size:14px;
+          letter-spacing:.08em;
+          color:#edf2f3;
+        }
+
+        .field-principle p {
+          font-size:11px;
+          line-height:1.6;
+          color:#7e8d94;
+          margin:9px 0 0;
+        }
+
+        .field-rail {
+          position:relative;
+          display:grid;
+          grid-template-columns:repeat(6,1fr);
+          border-top:1px solid rgba(255,255,255,.11);
+          border-bottom:1px solid rgba(255,255,255,.08);
+        }
+
+        .field-rail-line {
+          position:absolute;
+          left:8%;
+          right:8%;
+          top:42px;
+          height:1px;
+          background:linear-gradient(90deg,#339933,rgba(51,153,51,.18));
+          box-shadow:0 0 15px rgba(51,153,51,.18);
+        }
+
+        .field-node {
+          position:relative;
+          min-height:285px;
+          padding:25px 24px 28px;
+          border-right:1px solid rgba(255,255,255,.08);
+          background:linear-gradient(180deg,rgba(12,23,29,.34),rgba(5,12,16,.08));
+          transition:.25s ease;
+        }
+
+        .field-node:last-child {
+          border-right:0;
+        }
+
+        .field-node:hover {
+          background:linear-gradient(180deg,rgba(51,153,51,.08),rgba(5,12,16,.02));
+          transform:translateY(-4px);
+        }
+
+        .field-node-top {
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          position:relative;
+          z-index:2;
+        }
+
+        .field-node-top span {
+          font-size:11px;
+          color:#9be24b;
+          font-weight:800;
+          letter-spacing:.08em;
+        }
+
+        .field-node-top i {
+          width:9px;
+          height:9px;
+          border-radius:50%;
+          background:#27322e;
+          border:1px solid rgba(255,255,255,.12);
+          box-shadow:0 0 0 5px rgba(51,153,51,.02);
+        }
+
+        .field-node:first-of-type .field-node-top i {
+          background:#339933;
+          box-shadow:0 0 16px rgba(51,153,51,.55);
+        }
+
+        .field-node small {
+          display:block;
+          margin-top:58px;
+          color:#68777e;
+          font-size:8px;
+          letter-spacing:.16em;
+        }
+
+        .field-node h3 {
+          font-size:22px;
+          letter-spacing:-.02em;
+          margin:12px 0 9px;
+          color:#eef2f2;
+        }
+
+        .field-node p {
+          font-size:11px;
+          line-height:1.65;
+          color:#829198;
+          max-width:170px;
+        }
+
+        .field-bottom-strip {
+          display:grid;
+          grid-template-columns:1fr 30px 1fr 30px 1fr;
+          align-items:center;
+          margin-top:20px;
+          padding:18px 22px;
+          border:1px solid rgba(255,255,255,.08);
+          background:rgba(7,15,20,.55);
+        }
+
+        .field-bottom-strip b {
+          font-size:11px;
+          letter-spacing:.08em;
+          color:#dbe2e4;
+        }
+
+        .field-bottom-strip>i {
+          height:1px;
+          background:rgba(51,153,51,.45);
+          position:relative;
+        }
+
+        .field-bottom-strip>i:after {
+          content:'›';
+          position:absolute;
+          right:-2px;
+          top:-10px;
+          color:#339933;
+          font-size:18px;
+        }
+
+        .readiness {
+          display:grid!important;
+          grid-template-columns:310px 1fr;
+          gap:64px;
+          align-items:center;
+        }
+
+        .readiness-intro>span {
+          font-size:10px;
+          letter-spacing:.17em;
+          color:#9be24b;
+        }
+
+        .readiness-intro h2 {
+          font-size:clamp(54px,6vw,96px);
+          line-height:.82;
+          letter-spacing:-.065em;
+          margin:28px 0 26px;
+          color:#f1f4f4;
+        }
+
+        .readiness-intro p {
+          font-size:12px;
+          line-height:1.7;
+          color:#819097;
+          max-width:285px;
+        }
+
+        .readiness-stamp {
+          display:flex;
+          align-items:center;
+          gap:12px;
+          margin-top:28px;
+          padding-top:17px;
+          border-top:1px solid rgba(255,255,255,.08);
+        }
+
+        .readiness-stamp b {
+          font-size:11px;
+          letter-spacing:.13em;
+          color:#fff;
+        }
+
+        .readiness-stamp span {
+          font-size:8px;
+          letter-spacing:.13em;
+          color:#68777e;
+        }
+
+        .readiness-grid {
+          display:grid;
+          grid-template-columns:repeat(2,1fr);
+          gap:12px;
+        }
+
+        .readiness-card {
+          min-height:205px;
+          padding:24px;
+          border:1px solid rgba(255,255,255,.09);
+          background:linear-gradient(145deg,rgba(12,23,29,.78),rgba(5,12,16,.72));
+          position:relative;
+          overflow:hidden;
+          transition:.25s ease;
+        }
+
+        .readiness-card:hover {
+          border-color:rgba(51,153,51,.45);
+          transform:translateY(-3px);
+        }
+
+        .readiness-card-number {
+          font-size:11px;
+          color:#9be24b;
+          font-weight:800;
+        }
+
+        .readiness-card-tag {
+          position:absolute;
+          right:20px;
+          top:24px;
+          font-size:8px;
+          letter-spacing:.15em;
+          color:#5f7077;
+        }
+
+        .readiness-card h3 {
+          font-size:16px;
+          letter-spacing:.03em;
+          margin:48px 0 10px;
+          color:#e9eeee;
+        }
+
+        .readiness-card p {
+          font-size:11px;
+          line-height:1.65;
+          color:#7e8d94;
+          max-width:260px;
+        }
+
+        .readiness-card-line {
+          position:absolute;
+          left:24px;
+          right:24px;
+          bottom:22px;
+          height:2px;
+          background:rgba(255,255,255,.06);
+          overflow:hidden;
+        }
+
+        .readiness-card-line i {
+          display:block;
+          width:38%;
+          height:100%;
+          background:#339933;
+          box-shadow:0 0 12px rgba(51,153,51,.5);
+        }
+
+        @media(max-width:950px) {
+          .field-heading {
+            grid-template-columns:1fr;
+          }
+
+          .field-rail {
+            grid-template-columns:repeat(3,1fr);
+          }
+
+          .field-rail-line {
+            display:none;
+          }
+
+          .field-node:nth-child(3) {
+            border-right:0;
+          }
+
+          .field-bottom-strip {
+            grid-template-columns:1fr;
+            gap:14px;
+          }
+
+          .field-bottom-strip>i {
+            display:none;
+          }
+
+          .readiness {
+            grid-template-columns:1fr!important;
+          }
+
+          .readiness-grid {
+            grid-template-columns:1fr 1fr;
+          }
+        }
+
+        @media(max-width:620px) {
+          .field-rail {
+            grid-template-columns:1fr;
+          }
+
+          .field-node {
+            border-right:0;
+            border-bottom:1px solid rgba(255,255,255,.08);
+          }
+
+          .readiness-grid {
+            grid-template-columns:1fr;
+          }
+
+          .readiness-intro h2 {
+            font-size:58px;
+          }
+        }
       `}</style>
 
       <nav className="nav">
         <a className="brand" href="#top">
-          <img src="/images/NMDC%20logo.jpeg" alt="NMDC" />
-          <div>
+          <img
+            className="brand-nmdc"
+            src="/images/NMDC%20logo.jpeg"
+            alt="NMDC"
+          />
+
+          <span className="brand-divider" />
+
+          <img
+            className="brand-mugizh"
+            src="/images/Mugizh-logo.png"
+            alt="Mugizh"
+          />
+
+
+          <div className="brand-copy">
             <strong>CONVEYOR MANUAL</strong>
             <small>NUNAR / CONDITION ASSESSMENT</small>
           </div>
@@ -494,8 +1363,9 @@ function App() {
           <a href="#context">Context</a>
           <a href="#damage">Damage</a>
           <a href="#sensors">Sensors</a>
-          <a href="#research">Research</a>
+          <a href="#evidence">Evidence</a>
           <a href="#nunar">NUNAR</a>
+          <a href="#research">Research</a>
           <a href="#field">Field Action</a>
         </div>
       </nav>
@@ -503,6 +1373,7 @@ function App() {
       <main id="top">
         <section className="hero">
           <div className="hero-grid" />
+
           <div className="hero-content">
             <div className="hero-kicker">
               <i />
@@ -525,6 +1396,7 @@ function App() {
               <a href="#damage" className="button primary">
                 EXPLORE DAMAGE <b>↓</b>
               </a>
+
               <a href="#nunar" className="button ghost">
                 HOW NUNAR WORKS
               </a>
@@ -535,10 +1407,12 @@ function App() {
                 <b>10</b>
                 <span>DAMAGE MODES</span>
               </div>
+
               <div>
                 <b>06</b>
                 <span>SENSOR FAMILIES</span>
               </div>
+
               <div>
                 <b>01</b>
                 <span>EVIDENCE CHAIN</span>
@@ -548,6 +1422,7 @@ function App() {
 
           <div className="hero-machine">
             <div className="machine-label">CONTINUOUS INSPECTION</div>
+
             <div className="belt">
               <div className="belt-pattern" />
               <div className="belt-scan" />
@@ -555,11 +1430,13 @@ function App() {
               <div className="belt-particle p2" />
               <div className="belt-particle p3" />
             </div>
+
             <div className="machine-base">
               <span />
               <span />
               <span />
             </div>
+
             <div className="machine-readout">
               <small>INSPECTION MODE</small>
               <strong>MULTIMODAL</strong>
@@ -580,6 +1457,7 @@ function App() {
                 src="/images/Operations%20map.jpeg"
                 alt="NMDC operations map"
               />
+
               <div className="image-caption">
                 <span>OPERATIONS CONTEXT</span>
                 <strong>From mining footprint to conveyor reliability</strong>
@@ -591,9 +1469,12 @@ function App() {
                 src="/images/Mining%20leases.jpeg"
                 alt="NMDC mining leases"
               />
+
               <div className="image-caption">
                 <span>MINING FOOTPRINT</span>
-                <strong>Reliability begins with understanding the environment</strong>
+                <strong>
+                  Reliability begins with understanding the environment
+                </strong>
               </div>
             </article>
           </div>
@@ -608,15 +1489,19 @@ function App() {
             />
 
             <div className="layer-list">
-              {["SURFACE", "RUBBER / COVER", "STEEL CORD", "SPLICE", "OPERATING CONTEXT"].map(
-                (layer, i) => (
-                  <div className="layer" key={layer}>
-                    <b>0{i + 1}</b>
-                    <span>{layer}</span>
-                    <i />
-                  </div>
-                )
-              )}
+              {[
+                "SURFACE",
+                "RUBBER / COVER",
+                "STEEL CORD",
+                "SPLICE",
+                "OPERATING CONTEXT",
+              ].map((layer, i) => (
+                <div className="layer" key={layer}>
+                  <b>0{i + 1}</b>
+                  <span>{layer}</span>
+                  <i />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -626,7 +1511,9 @@ function App() {
             <div className="stack-layer rubber">RUBBER / COVER</div>
             <div className="stack-layer cord">STEEL CORD</div>
             <div className="stack-layer splice">SPLICE</div>
-            <div className="stack-layer context-layer">OPERATING CONTEXT</div>
+            <div className="stack-layer context-layer">
+              OPERATING CONTEXT
+            </div>
           </div>
         </section>
 
@@ -647,8 +1534,14 @@ function App() {
                 <div className="damage-number">
                   {String(damage.id).padStart(2, "0")}
                 </div>
+
                 <div
-                  className={`damage-visual ${damage.id === 9 ? "splice-visual" : damage.id === 10 ? "rupture-visual" : ""}`}
+                  className={`damage-visual ${damage.id === 9
+                    ? "splice-visual"
+                    : damage.id === 10
+                      ? "rupture-visual"
+                      : ""
+                    }`}
                   aria-hidden="true"
                 >
                   {damage.id === 9 ? (
@@ -660,7 +1553,9 @@ function App() {
                       <div className="splice-bolt bolt-two" />
                       <div className="splice-bolt bolt-three" />
                       <div className="splice-scan-line" />
-                      <span className="visual-tag">JOINT / SPLICE ZONE</span>
+                      <span className="visual-tag">
+                        JOINT / SPLICE ZONE
+                      </span>
                     </>
                   ) : damage.id === 10 ? (
                     <>
@@ -669,7 +1564,9 @@ function App() {
                       <div className="rupture-gap" />
                       <div className="rupture-crack" />
                       <div className="rupture-scan-line" />
-                      <span className="visual-tag rupture-tag">CRITICAL / CONTINUITY LOST</span>
+                      <span className="visual-tag rupture-tag">
+                        CRITICAL / CONTINUITY LOST
+                      </span>
                     </>
                   ) : (
                     <>
@@ -678,6 +1575,7 @@ function App() {
                     </>
                   )}
                 </div>
+
                 <div className="damage-info">
                   <span>FAILURE MODE</span>
                   <h3>{damage.name}</h3>
@@ -700,10 +1598,12 @@ function App() {
             <div className="sensor-visual">
               <div className="sensor-ring ring-one" />
               <div className="sensor-ring ring-two" />
+
               <div className="sensor-core">
                 <span>QUESTION</span>
                 <strong>{sensors[activeSensor].code}</strong>
               </div>
+
               <div className="orbit-dot dot-one" />
               <div className="orbit-dot dot-two" />
               <div className="orbit-dot dot-three" />
@@ -726,10 +1626,12 @@ function App() {
                 <span>QUESTION THIS SENSOR ANSWERS</span>
                 <h3>{sensors[activeSensor].name}</h3>
                 <h4>{sensors[activeSensor].question}</h4>
+
                 <div className="sensor-key">
                   <b>WHY THIS?</b>
                   <span>{sensors[activeSensor].key}</span>
                 </div>
+
                 <div className="sensor-alt">
                   <b>WHY NOT THE ALTERNATIVE?</b>
                   <span>{sensors[activeSensor].alternative}</span>
@@ -739,11 +1641,11 @@ function App() {
           </div>
         </section>
 
-        <section className="matrix section">
+        <section className="matrix section" id="evidence">
           <SectionTitle
             eyebrow="05 / EVIDENCE COVERAGE"
-            title="SENSOR ↔ DAMAGE MATRIX"
-            text="Primary sensing and supporting evidence are separated so the role of each modality remains clear."
+            title="SENSOR ↔ DAMAGE EVIDENCE MAP"
+            text="Each sensor observes a different physical signature of belt degradation."
           />
 
           <div className="matrix-wrap">
@@ -751,19 +1653,63 @@ function App() {
               <thead>
                 <tr>
                   <th>DAMAGE</th>
-                  <th>MFL</th>
-                  <th>AE</th>
-                  <th>RGB</th>
-                  <th>LWIR</th>
-                  <th>MCSA</th>
-                  <th>RFID</th>
-                  <th>ENC.</th>
+
+                  <th>
+                    <span className="matrix-sensor-code">MFL</span>
+                    <span className="matrix-sensor-name">
+                      INTERNAL
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="matrix-sensor-code">AE</span>
+                    <span className="matrix-sensor-name">
+                      ACTIVE EVENT
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="matrix-sensor-code">RGB</span>
+                    <span className="matrix-sensor-name">
+                      SURFACE
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="matrix-sensor-code">LWIR</span>
+                    <span className="matrix-sensor-name">
+                      THERMAL
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="matrix-sensor-code">MCSA</span>
+                    <span className="matrix-sensor-name">
+                      OPERATING
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="matrix-sensor-code">RFID</span>
+                    <span className="matrix-sensor-name">
+                      IDENTITY
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="matrix-sensor-code">ENC.</span>
+                    <span className="matrix-sensor-name">
+                      POSITION
+                    </span>
+                  </th>
                 </tr>
               </thead>
+
               <tbody>
                 {matrix.map((row) => (
                   <tr key={row[0]}>
                     <td>{row[0]}</td>
+
                     {row.slice(1).map((value, i) => (
                       <td
                         className={
@@ -771,11 +1717,19 @@ function App() {
                             ? "primary-cell"
                             : value === "○"
                               ? "support-cell"
-                              : ""
+                              : "none-cell"
                         }
                         key={`${row[0]}-${i}`}
                       >
-                        {value}
+                        {value === "●" ? (
+                          <b className="evidence-bar direct">███</b>
+                        ) : value === "○" ? (
+                          <b className="evidence-bar supporting">
+                            ██
+                          </b>
+                        ) : (
+                          <b className="evidence-bar none">·</b>
+                        )}
                       </td>
                     ))}
                   </tr>
@@ -783,10 +1737,27 @@ function App() {
               </tbody>
             </table>
 
-            <div className="legend">
-              <span><b>●</b> PRIMARY</span>
-              <span><b>○</b> SUPPORTING</span>
-              <span><b>—</b> NOT PRIMARY</span>
+            <div className="matrix-legend">
+              <span className="matrix-legend-title">
+                EVIDENCE STRENGTH
+              </span>
+
+              <div className="matrix-legend-items">
+                <span className="matrix-legend-item direct">
+                  <b>███</b>
+                  Direct Evidence
+                </span>
+
+                <span className="matrix-legend-item support">
+                  <b>██</b>
+                  Supporting Evidence
+                </span>
+
+                <span className="matrix-legend-item none">
+                  <b>·</b>
+                  No Direct Signal
+                </span>
+              </div>
             </div>
           </div>
         </section>
@@ -794,6 +1765,7 @@ function App() {
         <section className="nunar section" id="nunar">
           <div className="nunar-header">
             <span>06 / INTELLIGENT ASSESSMENT</span>
+
             <h2>
               NUNAR
               <br />
@@ -803,14 +1775,20 @@ function App() {
 
           <div className="fusion">
             <div className="fusion-inputs">
-              {["RGB", "MFL / DMI", "AE", "LWIR", "MCSA", "RFID", "ENCODER"].map(
-                (item) => (
-                  <div className="fusion-input" key={item}>
-                    <span>{item}</span>
-                    <i />
-                  </div>
-                )
-              )}
+              {[
+                "RGB",
+                "MFL / DMI",
+                "AE",
+                "LWIR",
+                "MCSA",
+                "RFID",
+                "ENCODER",
+              ].map((item) => (
+                <div className="fusion-input" key={item}>
+                  <span>{item}</span>
+                  <i />
+                </div>
+              ))}
             </div>
 
             <div className="fusion-node">
@@ -824,10 +1802,12 @@ function App() {
                 <span>01</span>
                 <b>CONDITION</b>
               </div>
+
               <div>
                 <span>02</span>
                 <b>PROGRESSION</b>
               </div>
+
               <div>
                 <span>03</span>
                 <b>FIELD ACTION</b>
@@ -837,14 +1817,35 @@ function App() {
 
           <div className="evidence-chain">
             {[
-              ["01", "DETECT", "Sensor evidence identifies an abnormality."],
-              ["02", "CORRELATE", "Multiple sensing modalities are compared."],
-              ["03", "TRACK", "Position, splice identity and repeated observations are connected."],
-              ["04", "ASSESS", "Condition and damage progression are interpreted."],
-              ["05", "ACT", "The result supports inspection and maintenance planning."],
+              [
+                "01",
+                "DETECT",
+                "Sensor evidence identifies an abnormality.",
+              ],
+              [
+                "02",
+                "CORRELATE",
+                "Multiple sensing modalities are compared.",
+              ],
+              [
+                "03",
+                "TRACK",
+                "Position, splice identity and repeated observations are connected.",
+              ],
+              [
+                "04",
+                "ASSESS",
+                "Condition and damage progression are interpreted.",
+              ],
+              [
+                "05",
+                "ACT",
+                "The result supports inspection and maintenance planning.",
+              ],
             ].map(([num, title, desc]) => (
               <div className="chain-step" key={num}>
                 <span>{num}</span>
+
                 <div>
                   <b>{title}</b>
                   <p>{desc}</p>
@@ -854,6 +1855,7 @@ function App() {
           </div>
         </section>
 
+        {/* RESEARCH SECTION — LINKS PRESERVED */}
         <section className="research section" id="research">
           <SectionTitle
             eyebrow="07 / RESEARCH SIGNAL"
@@ -867,31 +1869,41 @@ function App() {
                 <span>FIELD RESEARCH → DESIGN DECISION</span>
                 <b>01</b>
               </div>
+
               <h3>WHY TRACK DAMAGE OVER TIME?</h3>
+
               <p>
                 Repeated diagnostic observations can reveal how defect count,
                 defect area and damage indicators change. That supports a shift
                 from simply detecting damage to understanding its progression.
               </p>
+
               <div className="research-scan-sequence">
-                {["BASELINE", "REPEAT", "COMPARE", "ASSESS"].map((label, i) => (
-                  <div className="research-scan-step" key={label}>
-                    <span>{String(i + 1).padStart(2, "0")}</span>
-                    <div>
-                      <b>{label}</b>
-                      <i style={{ width: `${30 + i * 18}%` }} />
+                {["BASELINE", "REPEAT", "COMPARE", "ASSESS"].map(
+                  (label, i) => (
+                    <div className="research-scan-step" key={label}>
+                      <span>{String(i + 1).padStart(2, "0")}</span>
+
+                      <div>
+                        <b>{label}</b>
+                        <i style={{ width: `${30 + i * 18}%` }} />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
+
               <div className="concept-note">
                 <span>ENGINEERING NOTE</span>
-                <strong>CONCEPTUAL PROGRESSION — NOT LIVE DATA</strong>
+                <strong>
+                  CONCEPTUAL PROGRESSION — NOT LIVE DATA
+                </strong>
               </div>
             </div>
 
             <div className="research-decision-card">
               <span>WHAT THE RESEARCH CHANGED</span>
+
               <div className="decision-row">
                 <b>01</b>
                 <div>
@@ -899,7 +1911,9 @@ function App() {
                   <p>Find the abnormality.</p>
                 </div>
               </div>
+
               <div className="decision-line" />
+
               <div className="decision-row">
                 <b>02</b>
                 <div>
@@ -907,7 +1921,9 @@ function App() {
                   <p>Compare repeated observations.</p>
                 </div>
               </div>
+
               <div className="decision-line" />
+
               <div className="decision-row">
                 <b>03</b>
                 <div>
@@ -921,17 +1937,28 @@ function App() {
           <div className="research-grid">
             <article className="research-card">
               <div className="research-card-index">01</div>
-              <span className="research-card-type">STEEL-CORD DAMAGE / PROGRESSION</span>
-              <h3>Repeated diagnostic scans can reveal damage development</h3>
+              <span className="research-card-type">
+                STEEL-CORD DAMAGE / PROGRESSION
+              </span>
+
+              <h3>
+                Repeated diagnostic scans can reveal damage development
+              </h3>
+
               <p>
                 Research on repeated magnetic diagnostic measurements shows why
                 defect count, defect area and their change over time matter for
                 condition assessment.
               </p>
+
               <div className="research-decision">
                 <span>DESIGN DECISION</span>
-                <strong>Keep historical observations, not just the latest scan.</strong>
+                <strong>
+                  Keep historical observations, not just the latest scan.
+                </strong>
               </div>
+
+              {/* EXISTING REDIRECT — UNCHANGED */}
               <a
                 className="research-link"
                 href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8196153/"
@@ -944,17 +1971,28 @@ function App() {
 
             <article className="research-card">
               <div className="research-card-index">02</div>
-              <span className="research-card-type">DIAGNOSTIC TREND / DEFECT AREA</span>
-              <h3>Damage area can matter alongside defect count</h3>
+              <span className="research-card-type">
+                DIAGNOSTIC TREND / DEFECT AREA
+              </span>
+
+              <h3>
+                Damage area can matter alongside defect count
+              </h3>
+
               <p>
                 DiagBelt research reported changes in both the number of defects
                 and their total affected area during repeated observations of a
                 steel-cord belt.
               </p>
+
               <div className="research-decision">
                 <span>DESIGN DECISION</span>
-                <strong>Track more than a simple defect counter.</strong>
+                <strong>
+                  Track more than a simple defect counter.
+                </strong>
               </div>
+
+              {/* EXISTING REDIRECT — UNCHANGED */}
               <a
                 className="research-link"
                 href="https://diagbeltplus.pwr.edu.pl/core-damage-increase-assessment-in-the-conveyor-belt-with-steel-cords/"
@@ -967,17 +2005,28 @@ function App() {
 
             <article className="research-card">
               <div className="research-card-index">03</div>
-              <span className="research-card-type">FAILURE CLASSIFICATION</span>
-              <h3>Different damage mechanisms need different monitoring</h3>
+              <span className="research-card-type">
+                FAILURE CLASSIFICATION
+              </span>
+
+              <h3>
+                Different damage mechanisms need different monitoring
+              </h3>
+
               <p>
                 A review of conveyor-belt damage classifies failure types and
                 discusses matching prevention and condition-monitoring methods to
                 the operating problem.
               </p>
+
               <div className="research-decision">
                 <span>DESIGN DECISION</span>
-                <strong>Start with the failure mechanism, then choose evidence.</strong>
+                <strong>
+                  Start with the failure mechanism, then choose evidence.
+                </strong>
               </div>
+
+              {/* EXISTING REDIRECT — UNCHANGED */}
               <a
                 className="research-link"
                 href="https://doi.org/10.1016/j.engfailanal.2022.106520"
@@ -990,17 +2039,28 @@ function App() {
 
             <article className="research-card">
               <div className="research-card-index">04</div>
-              <span className="research-card-type">SPLICE RELIABILITY</span>
-              <h3>Splice quality depends on preparation and material factors</h3>
+              <span className="research-card-type">
+                SPLICE RELIABILITY
+              </span>
+
+              <h3>
+                Splice quality depends on preparation and material factors
+              </h3>
+
               <p>
                 Experimental work on conveyor-belt splices identified improper
                 preparation of spliced surfaces and differences in mechanical
                 properties as contributors to reduced splice strength.
               </p>
+
               <div className="research-decision">
                 <span>DESIGN DECISION</span>
-                <strong>Make splice evidence and field verification explicit.</strong>
+                <strong>
+                  Make splice evidence and field verification explicit.
+                </strong>
               </div>
+
+              {/* EXISTING REDIRECT — UNCHANGED */}
               <a
                 className="research-link"
                 href="https://www.mdpi.com/1996-1073/14/5/1512"
@@ -1020,15 +2080,20 @@ function App() {
               title="FROM DETECTION TO FIELD ACTION"
               text="The system supports the engineer; it does not replace the engineer's inspection and maintenance decision."
             />
+
             <div className="field-principle">
               <span>FIELD PRINCIPLE</span>
               <strong>AI ADVISES. ENGINEER VERIFIES.</strong>
-              <p>No automated repair command. No safety-trip decision through the AI layer.</p>
+              <p>
+                No automated repair command. No safety-trip decision through
+                the AI layer.
+              </p>
             </div>
           </div>
 
           <div className="field-rail">
             <div className="field-rail-line" />
+
             {[
               ["01", "ALERT", "An abnormality is surfaced.", "SENSOR EVIDENCE"],
               ["02", "VERIFY", "Evidence is reviewed.", "MULTIMODAL CHECK"],
@@ -1042,6 +2107,7 @@ function App() {
                   <span>{num}</span>
                   <i />
                 </div>
+
                 <small>{tag}</small>
                 <h3>{title}</h3>
                 <p>{desc}</p>
@@ -1050,25 +2116,44 @@ function App() {
           </div>
 
           <div className="field-bottom-strip">
-            <div><span>INPUT</span><b>Sensor evidence</b></div>
+            <div>
+              <span>INPUT</span>
+              <b>Sensor evidence</b>
+            </div>
+
             <i />
-            <div><span>HUMAN GATE</span><b>Engineer verification</b></div>
+
+            <div>
+              <span>HUMAN GATE</span>
+              <b>Engineer verification</b>
+            </div>
+
             <i />
-            <div><span>OUTPUT</span><b>Maintenance action</b></div>
+
+            <div>
+              <span>OUTPUT</span>
+              <b>Maintenance action</b>
+            </div>
           </div>
         </section>
 
         <section className="readiness section">
           <div className="readiness-intro">
             <span>09 / MAINTENANCE READINESS</span>
+
             <h2>
-              DETECT.<br />
-              PREPARE.<br />
+              DETECT.
+              <br />
+              PREPARE.
+              <br />
               REPAIR.
             </h2>
+
             <p>
-              Detection only creates value when the maintenance team can turn the finding into a prepared, verifiable intervention.
+              Detection only creates value when the maintenance team can turn
+              the finding into a prepared, verifiable intervention.
             </p>
+
             <div className="readiness-stamp">
               <b>NUNAR</b>
               <span>DECISION SUPPORT LAYER</span>
@@ -1077,17 +2162,40 @@ function App() {
 
           <div className="readiness-grid">
             {[
-              ["01", "DAMAGE DETECTED", "Identify the failure mode and affected belt location.", "EVIDENCE"],
-              ["02", "REPAIR REQUIREMENT", "Translate the observed condition into a field repair need.", "METHOD"],
-              ["03", "SPARES / MATERIALS", "Surface the materials and repair equipment required for preparation.", "READINESS"],
-              ["04", "MAINTENANCE PREPARATION", "Plan inspection, access, downtime and authorized intervention.", "EXECUTION"],
+              [
+                "01",
+                "DAMAGE DETECTED",
+                "Identify the failure mode and affected belt location.",
+                "EVIDENCE",
+              ],
+              [
+                "02",
+                "REPAIR REQUIREMENT",
+                "Translate the observed condition into a field repair need.",
+                "METHOD",
+              ],
+              [
+                "03",
+                "SPARES / MATERIALS",
+                "Surface the materials and repair equipment required for preparation.",
+                "READINESS",
+              ],
+              [
+                "04",
+                "MAINTENANCE PREPARATION",
+                "Plan inspection, access, downtime and authorized intervention.",
+                "EXECUTION",
+              ],
             ].map(([num, title, desc, tag]) => (
               <article className="readiness-card" key={num}>
                 <div className="readiness-card-number">{num}</div>
                 <div className="readiness-card-tag">{tag}</div>
                 <h3>{title}</h3>
                 <p>{desc}</p>
-                <div className="readiness-card-line"><i /></div>
+
+                <div className="readiness-card-line">
+                  <i />
+                </div>
               </article>
             ))}
           </div>
@@ -1099,6 +2207,7 @@ function App() {
           <strong>NMDC</strong>
           <span>CONVEYOR BELT DAMAGE & FAILURE MANUAL</span>
         </div>
+
         <div>
           <strong>NUNAR</strong>
           <span>INTELLIGENT CONDITION ASSESSMENT LAYER</span>
@@ -1110,7 +2219,10 @@ function App() {
           className="modal-backdrop"
           onClick={() => setSelectedDamage(null)}
         >
-          <div className="damage-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="damage-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               className="close-modal"
               onClick={() => setSelectedDamage(null)}
@@ -1122,6 +2234,7 @@ function App() {
               <span>
                 {String(selectedDamage.id).padStart(2, "0")} / FAILURE MODE
               </span>
+
               <h2>{selectedDamage.name}</h2>
               <p>{selectedDamage.short}</p>
             </div>
@@ -1130,6 +2243,7 @@ function App() {
               <div>
                 <section>
                   <label>CAUSES</label>
+
                   <ul>
                     {selectedDamage.causes.map((item) => (
                       <li key={item}>{item}</li>
@@ -1139,6 +2253,7 @@ function App() {
 
                 <section>
                   <label>DETECTED BY</label>
+
                   <div className="sensor-pills">
                     {selectedDamage.sensors.map((sensor) => (
                       <span key={sensor}>{sensor}</span>
@@ -1160,7 +2275,9 @@ function App() {
               <div>
                 <section className="nunar-box">
                   <label>NUNAR ASSESSMENT</label>
+
                   <p>{selectedDamage.nunar}</p>
+
                   <div className="mini-chain">
                     <span>DETECT</span>
                     <i />
@@ -1172,6 +2289,7 @@ function App() {
 
                 <section>
                   <label>WHAT TO CHECK</label>
+
                   <ul>
                     {selectedDamage.checks.map((item) => (
                       <li key={item}>{item}</li>
@@ -1181,6 +2299,7 @@ function App() {
 
                 <section>
                   <label>REQUIRED SPARES / MATERIALS</label>
+
                   <ul>
                     {selectedDamage.spares.map((item) => (
                       <li key={item}>{item}</li>
@@ -1191,7 +2310,6 @@ function App() {
             </div>
           </div>
         </div>
-
       )}
     </div>
   );
